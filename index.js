@@ -48,6 +48,13 @@ const onInput = async event => {
     <img  src="${imgSrc}" />
     ${movie.Title}
     `;
+    option.addEventListener('click', () => {
+      //close dropdown
+      dropdown.classList.remove('is-active');
+      //update input.value to title of movie
+      input.value = movie.Title;
+      onMovieSelect(movie);
+    });
 
     resultsWrapper.appendChild(option);
   }
@@ -61,3 +68,67 @@ document.addEventListener('click', event => {
     input.value = '';
   }
 });
+
+const onMovieSelect = async movieSelected => {
+  const response = await axios.get('http://www.omdbapi.com', {
+    params: {
+      apikey: 'd9667e43',
+      i: movieSelected.imdbID
+    }
+  });
+  document.querySelector('#summary').innerHTML = movieTemplate(response.data);
+};
+
+const movieTemplate = movieDetail => {
+  return `
+  <article class="media">
+  <figure class="media-left">
+    <p class="image">
+      <img src="${movieDetail.Poster}" />
+    </p>
+  </figure>
+  <div class='media-content'>
+  <div class='content'>
+    <h1>
+      ${movieDetail.Title}
+      <h4>
+        ${movieDetail.Genre}
+        <p>${movieDetail.Plot}</p>
+      </h4>
+    </h1>
+  </div>
+</div>;
+</article>
+<article class='notification is-danger'>
+  <p class='title'>
+    ${movieDetail.Awards}
+    <p class='subtitle'>Awards</p>
+  </p>
+</article>;
+<article class='notification is-danger'>
+  <p class='title'>
+    ${movieDetail.BoxOffice}
+    <p class='subtitle'>Box Office</p>
+  </p>
+</article>;
+<article class='notification is-danger'>
+  <p class='title'>
+    ${movieDetail.Metascore}
+    <p class='subtitle'>Metascore</p>
+  </p>
+</article>;
+<article class='notification is-danger'>
+  <p class='title'>
+    ${movieDetail.imdbRating}
+    <p class='subtitle'>IMDbRating</p>
+  </p>
+</article>;
+<article class='notification is-danger'>
+  <p class='title'>
+    ${movieDetail.imdbVotes}
+    <p class='subtitle'>IMDb Votes</p>
+  </p>
+</article>;
+
+  `;
+};
