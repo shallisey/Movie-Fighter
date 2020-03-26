@@ -1,6 +1,4 @@
-createAutoComplete({
-  //Where to render the autocomplete to.
-  root: document.querySelector('.autocomplete'),
+const autoCompleteConfig = {
   //Show an individual item
   renderOption(movie) {
     const imgSrc = movie.Poster === 'N/A' ? '' : movie.Poster;
@@ -9,10 +7,7 @@ createAutoComplete({
     ${movie.Title} (${movie.Year})
     `;
   },
-  //Show what you "clicked" on
-  onOptionSelect(movie) {
-    onMovieSelect(movie);
-  },
+
   //Changes input.value to what you selected
   inputValue(movie) {
     return movie.Title;
@@ -30,16 +25,37 @@ createAutoComplete({
     }
     return response.data.Search;
   }
+};
+
+createAutoComplete({
+  ...autoCompleteConfig,
+  //Where to render the autocomplete to.
+  root: document.querySelector('#left-autocomplete'),
+  //Show what you "clicked" on
+  onOptionSelect(movie) {
+    document.querySelector('.tutorial').classList.add('is-hidden');
+    onMovieSelect(movie, document.querySelector('#left-summary'));
+  }
+});
+createAutoComplete({
+  ...autoCompleteConfig,
+  //Where to render the autocomplete to.
+  root: document.querySelector('#right-autocomplete'),
+  //Show what you "clicked" on
+  onOptionSelect(movie) {
+    document.querySelector('.tutorial').classList.add('is-hidden');
+    onMovieSelect(movie, document.querySelector('#right-summary'));
+  }
 });
 
-const onMovieSelect = async movieSelected => {
+const onMovieSelect = async (movieSelected, summaryElement) => {
   const response = await axios.get('http://www.omdbapi.com', {
     params: {
       apikey: 'd9667e43',
       i: movieSelected.imdbID
     }
   });
-  document.querySelector('#summary').innerHTML = movieTemplate(response.data);
+  summaryElement.innerHTML = movieTemplate(response.data);
 };
 
 const movieTemplate = movieDetail => {
@@ -60,38 +76,38 @@ const movieTemplate = movieDetail => {
       </h4>
     </h1>
   </div>
-</div>;
+</div>
 </article>
 <article class='notification is-danger'>
   <p class='title'>
     ${movieDetail.Awards}
     <p class='subtitle'>Awards</p>
   </p>
-</article>;
+</article>
 <article class='notification is-danger'>
   <p class='title'>
     ${movieDetail.BoxOffice}
     <p class='subtitle'>Box Office</p>
   </p>
-</article>;
+</article>
 <article class='notification is-danger'>
   <p class='title'>
     ${movieDetail.Metascore}
     <p class='subtitle'>Metascore</p>
   </p>
-</article>;
+</article>
 <article class='notification is-danger'>
   <p class='title'>
     ${movieDetail.imdbRating}
     <p class='subtitle'>IMDbRating</p>
   </p>
-</article>;
+</article>
 <article class='notification is-danger'>
   <p class='title'>
     ${movieDetail.imdbVotes}
     <p class='subtitle'>IMDb Votes</p>
   </p>
-</article>;
+</article>
 
   `;
 };
