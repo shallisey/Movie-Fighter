@@ -1,71 +1,34 @@
-const fetchData = async searchTerm => {
-  const response = await axios.get('http://www.omdbapi.com', {
-    params: {
-      apikey: 'd9667e43',
-      s: searchTerm
-    }
-  });
-
-  if (response.data.Error) {
-    return [];
-  }
-
-  return response.data.Search;
-};
-
-const root = document.querySelector('.autocomplete');
-root.innerHTML = `
-<label><b>Search For a Movie</b></label>
-<input class="input" />
-<div class="dropdown">
-  <div class="dropdown-menu">
-    <div class="dropdown-content results"></div>
-  </div>
-</div>
-`;
-
-const input = document.querySelector('input');
-const dropdown = document.querySelector('.dropdown');
-const resultsWrapper = document.querySelector('.results');
-
-const onInput = async event => {
-  const movies = await fetchData(event.target.value);
-
-  if (!movies.length) {
-    dropdown.classList.remove('is-active');
-    return;
-  }
-
-  resultsWrapper.innerHTML = '';
-  dropdown.classList.add('is-active');
-  for (let movie of movies) {
-    const option = document.createElement('a');
-    //Checks for a movie poster
+createAutoComplete({
+  //Where to render the autocomplete to.
+  root: document.querySelector('.autocomplete'),
+  //Show an individual item
+  renderOption(movie) {
     const imgSrc = movie.Poster === 'N/A' ? '' : movie.Poster;
-
-    option.classList.add('dropdown-item');
-    option.innerHTML = `
+    return `
     <img  src="${imgSrc}" />
-    ${movie.Title}
+    ${movie.Title} (${movie.Year})
     `;
-    option.addEventListener('click', () => {
-      //close dropdown
-      dropdown.classList.remove('is-active');
-      //update input.value to title of movie
-      input.value = movie.Title;
-      onMovieSelect(movie);
+  },
+  //Show what you "clicked" on
+  onOptionSelect(movie) {
+    onMovieSelect(movie);
+  },
+  //Changes input.value to what you selected
+  inputValue(movie) {
+    return movie.Title;
+  },
+  //How to fetch the data
+  async fetchData(searchTerm) {
+    const response = await axios.get('http://www.omdbapi.com', {
+      params: {
+        apikey: 'd9667e43',
+        s: searchTerm
+      }
     });
-
-    resultsWrapper.appendChild(option);
-  }
-};
-
-input.addEventListener('input', debounce(onInput, 750));
-
-document.addEventListener('click', event => {
-  if (!root.contains(event.target)) {
-    dropdown.classList.remove('is-active');
-    input.value = '';
+    if (response.data.Error) {
+      return [];
+    }
+    return response.data.Search;
   }
 });
 
