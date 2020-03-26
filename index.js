@@ -2,7 +2,6 @@ const fetchData = async searchTerm => {
   const response = await axios.get('http://www.omdbapi.com', {
     params: {
       apikey: 'd9667e43',
-      i: 'tt4154796',
       s: searchTerm
     }
   });
@@ -32,13 +31,21 @@ const resultsWrapper = document.querySelector('.results');
 const onInput = async event => {
   const movies = await fetchData(event.target.value);
 
+  if (!movies.length) {
+    dropdown.classList.remove('is-active');
+    return;
+  }
+
+  resultsWrapper.innerHTML = '';
   dropdown.classList.add('is-active');
   for (let movie of movies) {
     const option = document.createElement('a');
+    //Checks for a movie poster
+    const imgSrc = movie.Poster === 'N/A' ? '' : movie.Poster;
 
     option.classList.add('dropdown-item');
     option.innerHTML = `
-    <img  src="${movie.Poster}" />
+    <img  src="${imgSrc}" />
     ${movie.Title}
     `;
 
@@ -47,3 +54,10 @@ const onInput = async event => {
 };
 
 input.addEventListener('input', debounce(onInput, 750));
+
+document.addEventListener('click', event => {
+  if (!root.contains(event.target)) {
+    dropdown.classList.remove('is-active');
+    input.value = '';
+  }
+});
