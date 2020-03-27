@@ -57,6 +57,7 @@ const onMovieSelect = async (movieSelected, summaryElement, side) => {
       i: movieSelected.imdbID
     }
   });
+
   summaryElement.innerHTML = movieTemplate(response.data);
   //assigining data to the left or right side
   if (side === 'left') {
@@ -95,9 +96,15 @@ const runComparison = () => {
 };
 //  ************ EXTRACTING VALUES AND TURNING THEM INTO NUMBERS***************
 const movieTemplate = movieDetail => {
+  //Needed to check if BoxOffice was in movieDetail obj
+  if (!('BoxOffice' in movieDetail)) {
+    movieDetail.BoxOffice = 'N/A';
+  }
+
   const dollars = parseInt(
     movieDetail.BoxOffice.replace(/\$/g, '').replace(/,/g, '')
   );
+
   const metaScore = parseInt(movieDetail.Metascore);
   const imdbRating = parseFloat(movieDetail.imdbRating);
   const imdbVotes = parseInt(movieDetail.imdbVotes.replace(/,/g, ''));
